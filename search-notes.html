@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Notes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    nav {
+      margin-bottom: 30px;
+    }
+    nav a {
+      margin-right: 20px;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .search-box {
+      max-width: 500px;
+      margin: 20px auto;
+      display: flex;
+      gap: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #results {
+      max-width: 900px;
+      margin: 30px auto;
+    }
+    .note-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .note-card h3 {
+      margin: 0 0 10px;
+    }
+    .note-card small {
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Create Note</a>
+    <a href="view-notes.html">View Notes</a>
+    <a href="search-notes.html">Search Notes</a>
+  </nav>
+
+  <h1>Search Notes</h1>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Enter keyword or note ID..." />
+    <button onclick="searchNotes()">Search</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    function searchNotes() {
+      const query = document.getElementById("searchInput").value.trim();
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      if (!query) {
+        resultsDiv.innerHTML = "<p>Please enter a keyword or ID.</p>";
+        return;
+      }
+
+      fetch(`http://localhost:5000/search?keyword=${encodeURIComponent(query)}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.notes.length === 0) {
+            resultsDiv.innerHTML = "<p>No notes found.</p>";
+            return;
+          }
+
+          data.notes.forEach(note => {
+            const card = document.createElement("div");
+            card.className = "note-card";
+            card.innerHTML = `
+              <h3>${note.title}</h3>
+              <p>${note.content || "<em>No content</em>"}</p>
+              <small>Note ID: ${note.id}</small>
+            `;
+            resultsDiv.appendChild(card);
+          });
+        })
+        .catch(error => {
+          console.error("Search failed:", error);
+          resultsDiv.innerHTML = "<p style='color:red;'>Error during search. Please try again.</p>";
+        });
+    }
+  </script>
+
+</body>
+</html>
