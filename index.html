@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Note</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Create Note</h1>
+    <input type="text" id="title" placeholder="Enter note title" required />
+    <textarea id="content" rows="4" placeholder="Enter note content"></textarea>
+    <button onclick="createNote()">Create Note</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    function createNote() {
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value;
+
+      if (!title) {
+        document.getElementById('message').innerText = "Title is required!";
+        return;
+      }
+
+      fetch('http://localhost:5000/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, content })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById('message').innerText = data.error;
+        } else {
+          document.getElementById('message').innerText = "Note created successfully!";
+          document.getElementById('title').value = '';
+          document.getElementById('content').value = '';
+        }
+      })
+      .catch(err => {
+        document.getElementById('message').innerText = "Error creating note.";
+        console.error(err);
+      });
+    }
+  </script>
+
+</body>
+</html>
