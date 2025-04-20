@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>View Notes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    #notes-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .note-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    .note-card h3 {
+      margin-top: 0;
+      color: #444;
+    }
+    .note-card p {
+      color: #555;
+    }
+    .note-card small {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>All Notes</h1>
+  <div id="notes-container">
+    <!-- Notes will be loaded here -->
+  </div>
+
+  <script>
+    async function loadNotes() {
+      try {
+        const response = await fetch('http://localhost:5000/notes');
+        const data = await response.json();
+
+        const container = document.getElementById('notes-container');
+        container.innerHTML = '';
+
+        if (data.notes.length === 0) {
+          container.innerHTML = '<p>No notes found.</p>';
+          return;
+        }
+
+        data.notes.forEach(note => {
+          const card = document.createElement('div');
+          card.className = 'note-card';
+
+          card.innerHTML = `
+            <h3>${note.title}</h3>
+            <p>${note.content || '<em>No content</em>'}</p>
+            <small>Note ID: ${note.id}</small>
+          `;
+
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Failed to load notes:', error);
+        document.getElementById('notes-container').innerHTML = '<p>Error loading notes.</p>';
+      }
+    }
+
+    loadNotes();
+  </script>
+
+</body>
+</html>
